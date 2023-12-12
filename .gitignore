@@ -1,0 +1,6 @@
+# Environment & configuration
+.venv/
+config/
+
+# Others
+notes.md

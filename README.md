@@ -1,0 +1,1 @@
+A bot for the Discord server of ALGOSUP, a French school of Computer Science.
