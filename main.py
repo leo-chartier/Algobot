@@ -1,5 +1,3 @@
-# Adapted from https://discordpy.readthedocs.io/en/latest/intro.html#basic-concepts
-
 import discord
 
 from bot import Bot
