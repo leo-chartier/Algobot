@@ -1,9 +1,11 @@
+from datetime import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from typing import Any, Optional
 
+from modals.info import SetInfo
 from utils.config import load
 
 # TODO: Use a real database
@@ -45,7 +47,35 @@ class Info(commands.Cog):
             await interaction.response.send_message(f"Error: No data found about {user.mention}", ephemeral=True)
             return
         
-        # TODO: Show modal
+        embed=discord.Embed(title=f"{data['firstname']} {data['lastname']}")
+
+        if data.get("github", None) is not None:
+            text = f'[{data["github"]}](https://github.com/{data["github"]})'
+            embed.add_field(name="GitHub", value=text, inline=True)
+
+        if data.get("linkedin", None) is not None:
+            text = f'[{data["linkedin"]}](https://www.linkedin.com/in/{data["linkedin"]})'
+            embed.add_field(name="LinkedIn", value=text, inline=True)
+
+        if data.get("birthday", None) is not None:
+            L = data["birthday"] # List of date values in the format [(year,) month, day]
+            try:
+                year = L[0]
+                month, day = L[-2:]
+                if len(L) == 2:
+                    # No year provided, use the next 
+                    year = datetime.now().year
+                    date = datetime(year=year, month=month, day=day)
+                    if date < datetime.now():
+                        year += 1
+                date = datetime(year=year, month=month, day=day)
+            except:
+                await interaction.response.send_message(f"Invalid birthday date: {L}")
+                return
+            timestamp = int(date.timestamp())
+            embed.add_field(name="Birthday", value=f'<t:{timestamp}:D>', inline=False)
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @group.command()
     async def set(self, interaction: discord.Interaction) -> None:
@@ -62,7 +92,8 @@ class Info(commands.Cog):
         else:
             data = {"discord": interaction.user.id}
         
-        # TODO: Show modal and save
+        modal = SetInfo(data)
+        await interaction.response.send_modal(modal)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Info(bot))
