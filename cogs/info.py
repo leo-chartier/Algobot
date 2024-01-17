@@ -1,8 +1,9 @@
-from datetime import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from datetime import datetime
+from hashlib import sha256
 from typing import Any, Optional
 
 from modals.info import SetInfo
@@ -29,7 +30,7 @@ class Info(commands.Cog):
     group = app_commands.Group(name="info", description="Get or set generic information about you or someone else")
 
     @group.command()
-    async def get(self, interaction: discord.Interaction, user: Optional[discord.User]) -> None:
+    async def get(self, interaction: discord.Interaction, user: Optional[discord.User | discord.Member]) -> None:
         """Get information about you or someone else"""
         if user is None:
             user = interaction.user
@@ -48,6 +49,11 @@ class Info(commands.Cog):
             return
         
         embed=discord.Embed(title=f"{data['firstname']} {data['lastname']}")
+
+        if data.get("email", None) is not None:
+            email_digest = sha256(str.encode(data["email"])).hexdigest()
+            avatar_url = f"https://gravatar.com/avatar/{email_digest}?s=128&d=404"
+            embed.set_thumbnail(url=avatar_url)
 
         if data.get("github", None) is not None:
             text = f'[{data["github"]}](https://github.com/{data["github"]})'
