@@ -3,10 +3,12 @@ from discord import app_commands
 from discord.ext import commands
 
 import calendar
-from datetime import datetime
-from typing import Any, Optional
+from datetime import date
+from typing import Any
 
 from utils.config import load
+
+EMBED_LIMIT = 6000
 
 class Calendar(commands.Cog):
 
@@ -23,7 +25,8 @@ class Calendar(commands.Cog):
             await interaction.response.send_message(f"Error: No configuration file found.", ephemeral=True)
             return
         
-        birthdays: dict[int, dict[int, list[dict[str, Any]]]] = {}
+        today = date.today()
+        birthdays: dict[int, list[tuple[date, str]]] = {}
         for data in all_data:
             L = data.get("birthday", None) or []
             if len(L) == 2:
@@ -33,19 +36,36 @@ class Calendar(commands.Cog):
             else:
                 continue # Unkown birthday
 
+            bdate = date(today.year, m, d)
+            if bdate < today:
+                bdate = date(today.year + 1, m, d)
+                m += 12
+
+            fullname = f"{data['firstname']} {data['lastname']}"
+            
             if m not in birthdays:
-                birthdays[m] = {}
-            if d not in birthdays[m]:
-                birthdays[m][d] = []
-            birthdays[m][d].append(data)
-        
+                birthdays[m] = []
+            birthdays[m].append((bdate, fullname))
+
         embed = discord.Embed(title="Birthdays")
-        for month in sorted(birthdays):
-            embed.add_field(name=calendar.month_name[month], value="\n".join(
-                f"{month}/{day}: {data['firstname']} {data['lastname']}"
-                for day in sorted(birthdays[month])
-                for data in birthdays[month][day]
-            ), inline=False)
+        for m in sorted(birthdays):
+            copy = embed.copy()
+
+            L = birthdays[m]
+            lines = "\n".join(
+                f"{d.day}: {fullname}"
+                for d, fullname in sorted(L, key=lambda x: x[0])
+            )
+
+            name = calendar.month_name[m % 12]
+            if m > 12:
+                name += f" {L[0][0].year}"
+
+            copy.add_field(name=name, value=lines, inline=False)
+            if len(copy) > EMBED_LIMIT:
+                break
+            embed = copy
+        
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
