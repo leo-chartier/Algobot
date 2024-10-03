@@ -3,12 +3,17 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.config import load
+from utils.logger import logger
 
 class Admin(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         super().__init__()
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        logger.info(f"Cog {__class__.__name__} ready")
 
     @app_commands.command()
     async def sync(self, interaction: discord.Interaction) -> None:

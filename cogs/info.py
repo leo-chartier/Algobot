@@ -8,6 +8,7 @@ from typing import Any, Optional
 
 from modals.info import SetInfo
 from utils.config import load
+from utils.logger import logger
 
 # TODO: Use a real database
 
@@ -26,6 +27,10 @@ class Info(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         super().__init__()
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        logger.info(f"Cog {__class__.__name__} ready")
 
     group = app_commands.Group(name="info", description="Get or set generic information about you or someone else")
 

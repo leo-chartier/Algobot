@@ -7,6 +7,7 @@ from datetime import date
 from typing import Any
 
 from utils.config import load
+from utils.logger import logger
 
 EMBED_LIMIT = 6000
 
@@ -15,6 +16,10 @@ class Calendar(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         super().__init__()
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        logger.info(f"Cog {__class__.__name__} ready")
 
     @app_commands.command()
     async def birthdays(self, interaction: discord.Interaction) -> None:

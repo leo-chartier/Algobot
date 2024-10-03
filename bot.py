@@ -3,14 +3,14 @@ from discord.ext import commands
 
 import os
 
-from utils.config import load
+from utils.logger import logger
 
 class Bot(commands.Bot):
     def __init__(self, intents: discord.Intents) -> None:
         super().__init__(Bot.__no_prefix, intents=intents)
 
     async def on_ready(self) -> None:
-        print(f'Logged on as {self.user}!')
+        logger.info(f'Logged on as {self.user}!')
 
     async def setup_hook(self) -> None:
         await super().setup_hook()
