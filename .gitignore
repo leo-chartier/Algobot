@@ -2,6 +2,9 @@
 .venv/
 config/
 
+# Logs
+logs/
+
 # Others
 notes.md
 
