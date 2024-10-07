@@ -92,6 +92,14 @@ class Starboard(commands.Cog):
             name=original_message.author.display_name,
             icon_url=original_message.author.avatar.url if original_message.author.avatar else None
         )
+
+        images = [
+            attachment
+            for attachment in original_message.attachments
+            if attachment.width is not None
+        ]
+        if images:
+            embed.set_image(url=images[0].url)
         
         return embed
     
