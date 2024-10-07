@@ -2,6 +2,9 @@
 .venv/
 config/
 
+# Private cogs
+cogs/_*.py
+
 # Logs
 logs/
 
