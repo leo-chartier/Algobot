@@ -43,6 +43,11 @@ class Starboard(commands.Cog):
         
         original_message = await channel.fetch_message(payload.message_id)
 
+        if payload.event_type == "REACTION_ADD" and original_message.author.id == payload.user_id:
+            assert payload.member is not None
+            await original_message.remove_reaction(payload.emoji, payload.member)
+            return
+
         embed = self._generate_embed(original_message)
 
         channel_ids: list[int] = load().get('starboard channels', [])
