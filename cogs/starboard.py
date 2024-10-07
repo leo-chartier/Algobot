@@ -11,6 +11,8 @@ async def setup(bot: commands.Bot) -> None:
 class Starboard(commands.Cog):
     EMOJIS = ['⭐', '🌟']
     CUSTOM_EMOJIS: list[int]
+    DEFAULT_MINIMUM = 3
+    MINIMUM: int
 
     # TODO: Move to DB for permanent storage
     history: dict[int, dict[int, int]] = {}
@@ -19,7 +21,8 @@ class Starboard(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         super().__init__()
         self.bot = bot
-        Starboard.CUSTOM_EMOJIS = load("bot").get("starboard custom emojis", [])
+        self.CUSTOM_EMOJIS = load("bot").get("starboard custom emojis", [])
+        self.MINIMUM = load("bot").get("starboard minimum", Starboard.DEFAULT_MINIMUM)
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -79,7 +82,7 @@ class Starboard(commands.Cog):
             if self._is_valid_emoji(reaction.emoji):
                 nb_reactions += reaction.count
         
-        if nb_reactions == 0:
+        if nb_reactions < self.MINIMUM:
             return None
 
         embed = discord.Embed(
